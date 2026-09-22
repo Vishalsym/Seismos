@@ -18,7 +18,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-import streamlit.components.v1 as components
 from sklearn.ensemble import (AdaBoostClassifier, GradientBoostingRegressor,
                                HistGradientBoostingClassifier, HistGradientBoostingRegressor,
                                RandomForestClassifier, RandomForestRegressor, VotingClassifier)
@@ -1027,33 +1026,33 @@ if page == "🛰️  Command Center":
         fig = px.area(yearly, x='year', y='count', title="EVENT FREQUENCY OVER TIME")
         fig.update_traces(line_color='#29e0ff', fillcolor='rgba(41,224,255,0.15)')
         fig.update_layout(template=DARK_TEMPLATE, height=340)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
     with col2:
         dist = eq['mag_class'].value_counts().reindex(CLASS_ORDER)
         fig = px.pie(values=dist.values, names=dist.index, hole=0.6, title="MAGNITUDE CLASS DISTRIBUTION",
                      color=dist.index, color_discrete_map=CLASS_COLORS)
         fig.update_layout(template=DARK_TEMPLATE, height=340)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     st.markdown("### MODEL PERFORMANCE AT A GLANCE")
     g1, g2, g3 = st.columns(3)
     best = M['best_class_model']
     with g1:
         st.plotly_chart(gauge(M['results'].loc[best, 'Accuracy'], f"ACCURACY — {best}", color='#37f0a0'),
-                        use_container_width=True)
+                        width='stretch')
     with g2:
         st.plotly_chart(gauge(M['results'].loc[best, 'ROC-AUC (macro)'], "ROC-AUC (macro)", color='#29e0ff'),
-                        use_container_width=True)
+                        width='stretch')
     with g3:
         st.plotly_chart(gauge(M['reg_results'].loc[M['best_reg_model'], 'R2'], "REGRESSION R²",
-                              max_val=1.0, color='#a56bff'), use_container_width=True)
+                              max_val=1.0, color='#a56bff'), width='stretch')
 
     st.markdown('<div class="grad-divider"></div>', unsafe_allow_html=True)
 
     st.markdown("### SEISMIC ENERGY RELEASED — 1900–2023")
     ce1, ce2 = st.columns([1, 2])
     with ce1:
-        components.html(f"""
+        st.iframe(f"""
         <div style="font-family:'JetBrains Mono',monospace; color:#6b7a99; font-size:0.72rem;
             letter-spacing:0.1em; margin-bottom:4px;">HIROSHIMA-BOMB EQUIVALENTS</div>
         <div id="countup-val" style="font-family:'Orbitron',sans-serif; font-size:2.6rem; font-weight:900;
@@ -1062,7 +1061,7 @@ if page == "🛰️  Command Center":
         """, height=95)
         st.caption(f"Total energy: {EX['total_energy']:.2e} J — via Gutenberg-Richter E = 10^(1.5M+4.8)")
     with ce2:
-        components.html(f"""
+        st.iframe(f"""
         <canvas id="seismo-canvas" width="700" height="90" style="width:100%; border-radius:8px;"></canvas>
         <script>{SEISMO_JS.replace('__MAG_ARRAY__', json.dumps(EX['strip']))}</script>
         """, height=100)
@@ -1097,13 +1096,13 @@ elif page == "🗺️  Seismic Atlas":
         fig.update_geos(bgcolor='rgba(0,0,0,0)', landcolor='#0c1120', oceancolor='#05070d',
                          showocean=True, coastlinecolor='#1e2a45', countrycolor='#1e2a45')
         fig.update_layout(template=DARK_TEMPLATE, height=560, margin=dict(l=0, r=0, t=10, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     with tab2:
-        fig = px.density_mapbox(sample, lat='latitude', lon='longitude', z='mag', radius=6,
-                                 center=dict(lat=10, lon=140), zoom=1, mapbox_style="carto-darkmatter")
+        fig = px.density_map(sample, lat='latitude', lon='longitude', z='mag', radius=6,
+                                 center=dict(lat=10, lon=140), zoom=1, map_style="carto-darkmatter")
         fig.update_layout(template=DARK_TEMPLATE, height=560, margin=dict(l=0, r=0, t=10, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.caption("Density clusters trace the Pacific Ring of Fire and major fault boundaries.")
 
     with tab3:
@@ -1118,7 +1117,7 @@ elif page == "🗺️  Seismic Atlas":
                          coastlinecolor='#29e0ff', countrycolor='#1e2a45')
         fig.update_layout(template=DARK_TEMPLATE, height=560, margin=dict(l=0, r=0, t=10, b=0),
                            title="ROTATE: DRAG TO EXPLORE — COLOR = DEPTH")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     with tab4:
         st.caption("Press ▶ Play to watch 124 years of seismic activity unfold, decade by decade.")
@@ -1134,7 +1133,7 @@ elif page == "🗺️  Seismic Atlas":
         if fig.layout.updatemenus:
             fig.layout.updatemenus[0].bgcolor = '#10182c'
             fig.layout.updatemenus[0].font = dict(color='#d8e0f0', family='JetBrains Mono')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     with tab5:
         st.caption("What does the trained model think the *whole planet* looks like — not just where "
@@ -1142,17 +1141,17 @@ elif page == "🗺️  Seismic Atlas":
         hg = M['hazard_grid']
         c1, c2 = st.columns(2)
         with c1:
-            fig = px.density_mapbox(hg, lat='latitude', lon='longitude', z='risk', radius=20,
-                                    center=dict(lat=10, lon=140), zoom=0.5, mapbox_style="carto-darkmatter",
+            fig = px.density_map(hg, lat='latitude', lon='longitude', z='risk', radius=20,
+                                    center=dict(lat=10, lon=140), zoom=0.5, map_style="carto-darkmatter",
                                     color_continuous_scale='Inferno', title="MODEL-PREDICTED RISK (Strong+)")
             fig.update_layout(template=DARK_TEMPLATE, height=460, margin=dict(l=0, r=0, t=40, b=0))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         with c2:
-            fig = px.density_mapbox(eq, lat='latitude', lon='longitude', radius=6,
-                                    center=dict(lat=10, lon=140), zoom=0.5, mapbox_style="carto-darkmatter",
+            fig = px.density_map(eq, lat='latitude', lon='longitude', radius=6,
+                                    center=dict(lat=10, lon=140), zoom=0.5, map_style="carto-darkmatter",
                                     color_continuous_scale='Viridis', title="ACTUAL HISTORICAL DENSITY")
             fig.update_layout(template=DARK_TEMPLATE, height=460, margin=dict(l=0, r=0, t=40, b=0))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         st.warning("**Honest caveat:** the model extrapolates beyond its training coverage in data-sparse "
                   "regions (open ocean, stable continental interiors) — the left panel can light up in places "
                   "with almost no real historical activity. Always sanity-check a hazard hotspot against the "
@@ -1175,7 +1174,7 @@ elif page == "🗺️  Seismic Atlas":
                            [CLASS_COLORS.get(c, '#29e0ff') for c in notable['mag_class'].astype(str)]))
                        .replace('__PLATE_SEGMENTS__', json.dumps(EX['plate_segments']))
                        + "</script>")
-        components.html(globe_html, height=580)
+        st.iframe(globe_html, height=580)
 
 # ======================================================================================
 # PAGE: DATA LAB (cleaning + preprocessing, fully shown)
@@ -1216,7 +1215,7 @@ elif page == "🧪  Data Lab":
             fig = px.box(eq, y='depth', title="DEPTH — IQR OUTLIER VIEW", points='outliers')
             fig.update_traces(marker_color='#ff3860')
             fig.update_layout(template=DARK_TEMPLATE, height=380)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             q1, q3 = eq['depth'].quantile([0.25, 0.75])
             iqr = q3 - q1
             st.caption(f"IQR bounds: [{max(0, q1-1.5*iqr):.1f}, {q3+1.5*iqr:.1f}] km. Deep subduction-zone events "
@@ -1227,7 +1226,7 @@ elif page == "🧪  Data Lab":
             fig.add_vline(x=3, line_dash='dash', line_color='#ff3860')
             fig.add_vline(x=-3, line_dash='dash', line_color='#ff3860')
             fig.update_layout(template=DARK_TEMPLATE, height=380, showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             st.caption(f"{(z.abs()>3).sum()} events beyond |z|=3 — flagged, not removed (measurement-quality "
                        "outliers, still real events).")
 
@@ -1237,14 +1236,14 @@ elif page == "🧪  Data Lab":
             fig = px.histogram(eq, x='depth', nbins=60, title="DEPTH — RAW DISTRIBUTION (right-skewed)",
                                marginal='box')
             fig.update_layout(template=DARK_TEMPLATE, height=380)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             skew = eq['depth'].skew()
             st.caption(f"Skewness = {skew:.2f} — heavily right-skewed (most events shallow, long tail of deep ones).")
         with col2:
             log_depth = np.log1p(eq['depth'])
             fig = px.histogram(log_depth, nbins=60, title="LOG(1+DEPTH) — AFTER TRANSFORM")
             fig.update_layout(template=DARK_TEMPLATE, height=380, showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             st.caption(f"Skewness after log-transform = {log_depth.skew():.2f} — much closer to symmetric. "
                        "(Models here use StandardScaler on raw depth; log-transform shown for comparison.)")
 
@@ -1271,7 +1270,7 @@ elif page == "📊  Exploratory Analysis":
             feat = st.selectbox("Numeric feature", ['mag', 'depth', 'rms', 'latitude', 'longitude', 'year'])
             fig = px.histogram(eq, x=feat, nbins=50, marginal='box', title=f"{feat.upper()} DISTRIBUTION")
             fig.update_layout(template=DARK_TEMPLATE, height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         with col2:
             catfeat = st.selectbox("Categorical feature", ['magType_grouped', 'depth_category', 'mag_class', 'type'])
             src = df if catfeat == 'type' else eq
@@ -1279,7 +1278,7 @@ elif page == "📊  Exploratory Analysis":
             fig = px.bar(x=counts.index.astype(str), y=counts.values, title=f"{catfeat.upper()} COUNTS",
                         color=counts.index.astype(str), color_discrete_sequence=px.colors.qualitative.Set2)
             fig.update_layout(template=DARK_TEMPLATE, height=400, showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
     with tab2:
         col1, col2 = st.columns(2)
@@ -1288,12 +1287,12 @@ elif page == "📊  Exploratory Analysis":
                              color_discrete_map=CLASS_COLORS, category_orders={'mag_class': CLASS_ORDER},
                              opacity=0.5, title="DEPTH vs MAGNITUDE")
             fig.update_layout(template=DARK_TEMPLATE, height=420)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         with col2:
             fig = px.box(eq, x='decade', y='mag', title="MAGNITUDE BY DECADE",
                         color_discrete_sequence=['#29e0ff'])
             fig.update_layout(template=DARK_TEMPLATE, height=420)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
     with tab3:
         corr_cols = ['mag', 'depth', 'rms', 'latitude', 'longitude', 'year']
@@ -1301,7 +1300,7 @@ elif page == "📊  Exploratory Analysis":
         fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', zmin=-1, zmax=1,
                         title="CORRELATION MATRIX")
         fig.update_layout(template=DARK_TEMPLATE, height=500)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     with tab4:
         sample3d = eq.sample(6000, random_state=42)
@@ -1313,7 +1312,7 @@ elif page == "📊  Exploratory Analysis":
                           yaxis=dict(backgroundcolor='#05070d', gridcolor='#1e2a45'),
                           zaxis=dict(backgroundcolor='#05070d', gridcolor='#1e2a45'))
         fig.update_layout(template=DARK_TEMPLATE, height=600)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 # ======================================================================================
 # PAGE: MODEL OBSERVATORY
@@ -1327,12 +1326,12 @@ elif page == "🧠  Model Observatory":
     with tab1:
         st.markdown("8 classifiers trained: **4 base** (Logistic Regression, KNN, Decision Tree, SVM) + "
                     "**4 ensemble** (Random Forest — tuned, Gradient Boosting — tuned, AdaBoost, Voting)")
-        st.dataframe(M['results'].style.highlight_max(axis=0, color='#123a2e'), use_container_width=True)
+        st.dataframe(M['results'].style.highlight_max(axis=0, color='#123a2e'), width='stretch')
 
         fig = px.bar(M['results'].reset_index(), x='Model', y=['Accuracy', 'F1 (macro)', 'ROC-AUC (macro)'],
                     barmode='group', title="MODEL COMPARISON")
         fig.update_layout(template=DARK_TEMPLATE, height=420)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
         st.markdown("### Confusion Matrix")
         mchoice = st.selectbox("Model", list(M['fitted'].keys()))
@@ -1341,7 +1340,7 @@ elif page == "🧠  Model Observatory":
                         labels=dict(x="Predicted", y="Actual"), color_continuous_scale='Tealrose',
                         title=f"CONFUSION MATRIX — {mchoice}")
         fig.update_layout(template=DARK_TEMPLATE, height=420)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.caption("Note the 'Great' row/column — only ~21 test examples exist for magnitude 8+. "
                   "No amount of tuning fixes genuine data scarcity for catastrophic events.")
 
@@ -1354,7 +1353,7 @@ elif page == "🧠  Model Observatory":
                       f"**Best CV F1 (macro):** {M['rf_tuning_info']['best_cv_f1']:.3f}")
             cvr = pd.DataFrame(M['rf_tuning_info']['cv_results'])[['params', 'mean_test_score', 'rank_test_score']]
             cvr = cvr.sort_values('rank_test_score')
-            st.dataframe(cvr, use_container_width=True, height=200)
+            st.dataframe(cvr, width='stretch', height=200)
         with c2:
             st.markdown("### Gradient Boosting — RandomizedSearchCV")
             st.json(M['gb_tuning_info']['search_space'])
@@ -1362,7 +1361,7 @@ elif page == "🧠  Model Observatory":
                       f"**Best CV F1 (macro):** {M['gb_tuning_info']['best_cv_f1']:.3f}")
             cvr2 = pd.DataFrame(M['gb_tuning_info']['cv_results'])[['params', 'mean_test_score', 'rank_test_score']]
             cvr2 = cvr2.sort_values('rank_test_score')
-            st.dataframe(cvr2, use_container_width=True, height=200)
+            st.dataframe(cvr2, width='stretch', height=200)
         st.caption("Search run on a 6,000-row stratified subsample (3-fold CV) for tractable runtime, then "
                   "the winning configuration is refit on the full 76,466-row training set.")
 
@@ -1373,7 +1372,7 @@ elif page == "🧠  Model Observatory":
         fig.add_hline(y=M['cv_scores'].mean(), line_dash='dash', line_color='#ff3860',
                      annotation_text=f"Mean = {M['cv_scores'].mean():.3f}")
         fig.update_layout(template=DARK_TEMPLATE, height=380)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.caption(f"Std across folds: {M['cv_scores'].std():.3f} — consistent performance, not a lucky split.")
 
     with tab4:
@@ -1382,7 +1381,7 @@ elif page == "🧠  Model Observatory":
         fig = px.bar(imp, orientation='h', title="RANDOM FOREST FEATURE IMPORTANCE",
                     color_discrete_sequence=['#a56bff'])
         fig.update_layout(template=DARK_TEMPLATE, yaxis=dict(autorange="reversed"), height=450, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.warning("**Honest read:** `year` ranks #1. That's not earthquakes getting stronger over time — it's "
                   "that *which magnitude scale gets used* (`magType`) has shifted historically, and the model "
                   "picks up on that reporting artifact alongside real geophysics (depth, location). Worth knowing "
@@ -1391,7 +1390,7 @@ elif page == "🧠  Model Observatory":
     with tab5:
         st.markdown("### Regression — Predicting Exact Magnitude")
         st.dataframe(M['reg_results'].style.highlight_max(axis=0, color='#123a2e', subset=['R2'])
-                    .highlight_min(axis=0, color='#123a2e', subset=['MAE']), use_container_width=True)
+                    .highlight_min(axis=0, color='#123a2e', subset=['MAE']), width='stretch')
         best_r = M['best_reg_model']
         st.success(f"**Best: {best_r}** — R² = {M['reg_results'].loc[best_r,'R2']:.3f}, "
                   f"MAE = {M['reg_results'].loc[best_r,'MAE']:.3f} magnitude units")
@@ -1448,7 +1447,7 @@ elif page == "🔮  Seismic Forecast":
     fig = px.bar(proba_df, x='Class', y='Probability', color='Class', color_discrete_map=CLASS_COLORS,
                 category_orders={'Class': CLASS_ORDER}, title="CLASS PROBABILITIES")
     fig.update_layout(template=DARK_TEMPLATE, height=320, showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     st.markdown("### Why This Prediction? — Feature Contribution")
     st.caption("A simplified linear attribution: each feature's contribution = its Random Forest importance "
@@ -1470,7 +1469,7 @@ elif page == "🔮  Seismic Forecast":
     ))
     fig_wf.update_layout(template=DARK_TEMPLATE, height=420, title="TOP 8 FEATURE CONTRIBUTIONS",
                          showlegend=False)
-    st.plotly_chart(fig_wf, use_container_width=True)
+    st.plotly_chart(fig_wf, width='stretch')
     st.caption("🔴 Red pushes toward a higher-risk class · 🔵 Blue pulls toward Moderate")
 
     if M['best_class_model'] == 'Voting Ensemble':
@@ -1489,7 +1488,7 @@ elif page == "🔮  Seismic Forecast":
         fig_vote = px.bar(vote_df.reset_index(), x='Member', y=CLASS_ORDER, barmode='stack',
                           color_discrete_map=CLASS_COLORS, title="EACH MEMBER'S VOTE (stacked probability)")
         fig_vote.update_layout(template=DARK_TEMPLATE, height=350)
-        st.plotly_chart(fig_vote, use_container_width=True)
+        st.plotly_chart(fig_vote, width='stretch')
         st.caption("The Voting Ensemble averages these three members' probabilities (soft voting) "
                   "to reach the final prediction shown above.")
 
@@ -1522,7 +1521,7 @@ elif page == "🌆  Exposure Atlas":
             fig = px.bar(pop_by_tier, title="POPULATION BY EXPOSURE TIER",
                         color=pop_by_tier.index, color_discrete_map={'Low': '#37f0a0', 'Moderate': '#ffb020', 'High': '#ff3860'})
             fig.update_layout(template=DARK_TEMPLATE, height=380, showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         with c2:
             fig = px.scatter_geo(cities[cities['pop'] > 200000], lat='lat', lon='lng', color='tier',
                                  size='pop', size_max=28, hover_name='city',
@@ -1531,13 +1530,13 @@ elif page == "🌆  Exposure Atlas":
             fig.update_geos(bgcolor='rgba(0,0,0,0)', landcolor='#0c1120', oceancolor='#05070d',
                             showocean=True, coastlinecolor='#1e2a45')
             fig.update_layout(template=DARK_TEMPLATE, height=380, margin=dict(l=0, r=0, t=40, b=0))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
         st.markdown("### Highest-Exposure Major Cities (population > 1M)")
         top_exp = cities[cities['pop'] > 1e6].nlargest(15, 'exposure_score')[
             ['city', 'country', 'pop', 'historical_events_300km', 'dist_nearest_plate_km', 'exposure_score']]
         st.dataframe(top_exp.style.background_gradient(subset=['exposure_score'], cmap='Reds'),
-                    use_container_width=True)
+                    width='stretch')
 
     with tab2:
         city_options = (cities['city'] + ', ' + cities['country']).tolist()
@@ -1567,7 +1566,7 @@ elif page == "🌆  Exposure Atlas":
                             showocean=True, coastlinecolor='#1e2a45',
                             center=dict(lat=row['lat'], lon=row['lng']), projection_scale=4)
             fig.update_layout(template=DARK_TEMPLATE, height=480, margin=dict(l=0, r=0, t=40, b=0))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         else:
             st.info("No M5+ events recorded within 300km of this city since 1900 — consistent with a low-exposure location.")
 
@@ -1622,7 +1621,7 @@ elif page == "🌆  Exposure Atlas":
         </div>
         </div>
         <script>""" + WAVE_JS.replace('__T_P__', str(t_p)).replace('__T_S__', str(t_s)) + "</script>")
-        components.html(wave_html, height=220)
+        st.iframe(wave_html, height=220)
 
 # ======================================================================================
 # PAGE: FORECAST LAB
@@ -1643,7 +1642,7 @@ elif page == "🌊  Forecast Lab":
         fig.update_layout(template=DARK_TEMPLATE, yaxis_type='log', height=420,
                           title="ANNUAL EVENT RATE vs MAGNITUDE (log scale)",
                           xaxis_title='Magnitude', yaxis_title='Events/year (globally)')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         st.caption("Fitted vs actual rates diverge somewhat at high magnitudes — a known real limitation "
                   "of a single global b-value fit (catalog completeness and regional variation both matter). "
                   "Shown honestly rather than hidden.")
@@ -1674,7 +1673,7 @@ elif page == "🌊  Forecast Lab":
 
         st.markdown("### Top 15 Sequences by Size")
         cluster_df = pd.DataFrame(DD['top_clusters'])
-        st.dataframe(cluster_df[['size', 'mainshock_mag', 'place', 'date']], use_container_width=True)
+        st.dataframe(cluster_df[['size', 'mainshock_mag', 'place', 'date']], width='stretch')
 
         pick = st.selectbox("Visualize a sequence", [f"{r['place'][:40]} M{r['mainshock_mag']} ({r['date']})"
                                                        for r in DD['top_clusters']])
@@ -1688,7 +1687,7 @@ elif page == "🌊  Forecast Lab":
                         coastlinecolor='#1e2a45', center=dict(lat=seq['latitude'].mean(), lon=seq['longitude'].mean()),
                         projection_scale=5)
         fig.update_layout(template=DARK_TEMPLATE, height=460, margin=dict(l=0, r=0, t=40, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 # ======================================================================================
 # PAGE: SONIC LAB
@@ -1712,7 +1711,7 @@ elif page == "🔊  Sonic Lab":
     <div id="sonify-status" style="margin-top:14px;color:#6b7a99;font-size:0.85rem;">Ready.</div>
     </div>
     <script>""" + SONIFY_JS.replace('__SONIFY_DATA__', json.dumps(EX['sonify'])) + "</script>")
-    components.html(sonify_html, height=150)
+    st.iframe(sonify_html, height=150)
 
     st.caption("Frequency = 180 + (magnitude − 5) × 140 Hz. Each decade is compressed to at most 50 events, "
               "spaced 110ms apart, so a whole decade plays back in a few seconds.")
@@ -1772,7 +1771,7 @@ elif page == "📡  Key Insights":
         <div id="voice-status" style="margin-top:10px;color:#6b7a99;font-size:0.85rem;">Ready.</div>
         </div>
         <script>""" + VOICE_JS.replace('__BRIEFING_TEXT__', json.dumps(briefing_text)) + "</script>")
-        components.html(voice_html, height=90)
+        st.iframe(voice_html, height=90)
         st.caption("Browser-native text-to-speech (Web Speech API) — no audio files, no external service.")
     with c2:
         st.markdown("### 📄 Mission Report")
